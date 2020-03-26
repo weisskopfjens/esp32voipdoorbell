@@ -3,7 +3,7 @@ A voip based door bell / phone realized with ESP32 and s2i mems + s2i dac
 
 **It is still under development.**
 
-Following things are already working:
+Working features:
 * Connect to a SIP server ( fritzbox router )
 * Initate a call ( SIP/SDP protocol )
 * 3 seperate buttons. Each initiate a call to a diffrent phonenumber.
