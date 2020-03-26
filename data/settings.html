@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.16.0/jquery.validate.min.js"></script>
+    <script src="main.js"></script>
+    <title>ConfigManager</title>
+  </head>
+  <body>
+    <div class="container">
+      <h1 style="text-align: center;">Settings</h1>
+      <form method="post" action="/settings">
+        <div class="field-group">
+          <label>Device Name</label>
+          <input name="device_name" type="text" size="32" data-type="text">
+        </div>
+        <div class="field-group">
+          <label>Telefonnummer 1</label>
+          <input name="telnr_1" type="text" size="32" data-type="text">
+        </div>
+        <div class="field-group">
+          <label>Telefonnummer 2</label>
+          <input name="telnr_2" type="text" size="32" data-type="text">
+        </div>
+        <div class="field-group">
+          <label>Telefonnummer 3</label>
+          <input name="telnr_3" type="text" size="32" data-type="text">
+        </div>
+        <div class="field-group">
+          <label>SIP gateway IP</label>
+          <input name="sip_ip" type="text" size="32" data-type="text">
+        </div>
+        <div class="field-group">
+          <label>SIP Benutzer</label>
+          <input name="sip_user" type="text" size="32" data-type="text">
+        </div>
+        <div class="field-group">
+          <label>SIP Passwort</label>
+          <input name="sip_pass" type="text" size="32" data-type="text">
+        </div>
+        <div class="field-group">
+          <label>Amp gain</label>
+          <input name="amp_gain" type="text" size="2" data-type="number">
+        </div>
+        <div class="field-group">
+          <label>Mic gain</label>
+          <input name="mic_gain" type="text" size="2" data-type="number">
+        </div>
+        <div class="field-group">
+          <label>(DST) Minutes realtive to GMT</label>
+          <input name="tz_dst" type="text" size="4" data-type="number">
+        </div>
+        <div class="field-group">
+          <label>(STD) Minutes realtive to GMT</label>
+          <input name="tz_std" type="text" size="4" data-type="number">
+        </div>
+        <div class="button-container">
+          <h2 style="" id="status"></h2>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
