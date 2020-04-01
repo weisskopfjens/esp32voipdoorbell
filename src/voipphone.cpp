@@ -87,8 +87,8 @@ int VOIPPhone::initi2samp() {
   // The pin config as per the setup
   const i2s_pin_config_t pin_config = {
       .bck_io_num = 14,   // BCLK
-      .ws_io_num = 27,    // LRC
-      .data_out_num = 12, // DOUT -> DIN
+      .ws_io_num = 12,    // LRC
+      .data_out_num = 27, // DOUT -> DIN
       .data_in_num = -1   // not used
   };
   // Configuring the I2S driver and pins.
@@ -127,10 +127,10 @@ int VOIPPhone::initi2smic() {
   };
   // The pin config as per the setup
   const i2s_pin_config_t pin_config = {
-      .bck_io_num = 33,   // BCKL SCK
-      .ws_io_num = 32,    // LRCL WS
+      .bck_io_num = 26,   // BCKL SCK
+      .ws_io_num = 25,    // LRCL WS
       .data_out_num = -1, // not used (only for speakers)
-      .data_in_num = 35   // DOUT SD
+      .data_in_num = 33   // DOUT SD
   };
   // Configuring the I2S driver and pins.
   // This pfunction must be called before any I2S driver read/write operations.

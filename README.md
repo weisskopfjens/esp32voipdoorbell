@@ -41,10 +41,10 @@ Requirements:
 |15           | Button 3     | second pin to gnd |
 |I2S Amplifier|              |                   |
 |14           | BCLK         |                   |
-|27           | LRC          |                   |
-|12           | DIN          |                   |
+|12           | LRC          |                   |
+|27           | DIN          |                   |
 |I2S          |              |                   |
-|33           | BCKL SCK     |                   |
-|32           | LRCL WS      |                   |
-|35           | DOUT SD      |                   |
+|26           | BCKL SCK     |                   |
+|25           | LRCL WS      |                   |
+|33           | DOUT SD      |                   |
 |             |              |                   |
