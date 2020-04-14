@@ -38,6 +38,7 @@ class VOIPPhone {
     void loop(void);
     void setMicGain(uint8_t gain);
     void setAmpGain(uint8_t gain);
+    bool isBusy(void);
   private:
     int initi2samp(void);
     int initi2smic(void);
