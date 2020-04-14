@@ -66,6 +66,11 @@ void VOIPPhone::setAmpGain(uint8_t gain) {
   amp_gain = gain;
 }
 
+bool VOIPPhone::isBusy(void) {
+  return sip->IsBusy();
+}
+
+
 //
 // Initialize i2s amplifier
 //
@@ -195,7 +200,8 @@ void VOIPPhone::tx_rtp(){
     //rtpudp.stop();
   } else {
     rtpudp.write(packetBuffer,length);
-    int endOK = rtpudp.endPacket();
+    //int endOK = rtpudp.endPacket();
+    rtpudp.endPacket();
   }
 }
 
