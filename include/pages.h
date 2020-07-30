@@ -92,6 +92,18 @@ const char HTML_settings[] PROGMEM = R"=====(
           <label>Ring B</label>
           <input name="ring_b" type="text" size="4" data-type="integer">
         </div>
+        <div class="field-group">
+          <label>Echocompensation</label>
+          <input name="echocompensation" type="checkbox" data-type="boolean">
+        </div>
+        <div class="field-group">
+          <label>Echodamping</label>
+          <input name="echodamping" type="text" size="4" data-type="integer">
+        </div>
+        <div class="field-group">
+          <label>Echothreshold</label>
+          <input name="echothreshold" type="text" size="4" data-type="integer">
+        </div>
         <div class="button-container">
           <h2 style="" id="status"></h2>
           <button type="submit">Save</button>
