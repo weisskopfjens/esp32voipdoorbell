@@ -5,12 +5,15 @@ Sip *VOIPPhone::sip = NULL;
 WiFiUDP VOIPPhone::rtpudp = WiFiUDP();
 uint8_t VOIPPhone::amp_gain = AMP_GAIN;
 uint8_t VOIPPhone::mic_gain = MIC_GAIN;
+bool VOIPPhone::echocompensation = false;
+uint8_t VOIPPhone::echodamping = 1;
 
 VOIPPhone::VOIPPhone() {
   
 }
 
 int VOIPPhone::begin(const char *sipip,const char *sipuser,const char *sippasswd) {
+  
   strcpy(myip,WiFi.localIP().toString().c_str());
   int connOK = rtpudp.begin(1234);
   if (connOK == 0) {
@@ -21,7 +24,7 @@ int VOIPPhone::begin(const char *sipip,const char *sipuser,const char *sippasswd
   }
   DebugPrint("Init SIP...");
   sip = new Sip(caSipOut, sizeof(caSipOut));
-  sip->Init(sipip, sipport , myip, sipport, sipuser, sippasswd, 120);
+  sip->Init(sipip, sipport , myip, sipport, sipuser, sippasswd, 15); // 15 seconds
   DebugPrintln("[OK]");
   // i2s devices
   int result = initi2smic();
@@ -185,7 +188,12 @@ void VOIPPhone::tx_rtp(){
     //i2s_read(I2S_PORT0,&sample,sizeof(SAMPLE_T),&num_bytes_read,portMAX_DELAY); // no timeout
     readFromMic(&sample,sizeof(SAMPLE_T),&num_bytes_read);
     if (num_bytes_read > 0) {
-      temp[i] = ALaw_Encode(MIC_CONVERT(sample)*mic_gain);
+      if(echocompensation) {
+        temp[i] = ALaw_Encode(MIC_CONVERT(sample)*mic_gain/echodamping);
+      } else {
+        temp[i] = ALaw_Encode(MIC_CONVERT(sample)*mic_gain);
+      }
+      
     }
   }
   if(sequenceNumber==0) {
@@ -219,6 +227,15 @@ void VOIPPhone::handleIncommingRTP(void) {
     rtppkgsize = rxRTPpkg.deserialize(rtpbuffer, packetSize);
     for(int i=0;i<rtppkgsize;i++) {
       buffer[i] = (ALaw_Decode((*(rxRTPpkg.getPayload()+i))))*amp_gain;
+      // echocompensation. calculate level.
+      if(echocompensation) {
+        level = (level + abs(buffer[i])) / 2;
+      }
+    }
+    if(echocompensation && (level > ec_threshold_level)) {
+      echodamping = echodamping_value;
+    } else {
+      echodamping = 1;
     }
     size_t num_bytes_write;
     writeToAmp(buffer,sizeof(int16_t)*rtppkgsize,&num_bytes_write);
@@ -234,19 +251,25 @@ void VOIPPhone::handleOutgoingRTP(void) {
   if( sip->audioport[0] != '\0' && !tx_streamisrunning ) {
     tx_streamisrunning = true;
     DebugPrint("Starting stream...");
-    i2s_start(I2S_PORT0);
+    i2s_start(I2S_PORT0); //mems
     tx_streamticker.attach_ms(20, VOIPPhone::tx_rtp);
     DebugPrintln("[OK]");
   } else if( sip->audioport[0] == '\0' && tx_streamisrunning ) {
+    // Hangup. Stopping i2s transmission and stopping tx rtp stream
     tx_streamisrunning = false;
     rx_streamisrunning = false;
     rtppkgsize = -1;
     DebugPrintln("Stream stopped.");
     tx_streamticker.detach();
     DebugPrint("Stopping i2s transmission...");
-    i2s_stop(I2S_PORT0);
-    i2s_stop(I2S_PORT1);
+    i2s_stop(I2S_PORT0); //mems
+    i2s_stop(I2S_PORT1); //amp
     DebugPrintln("[OK]");
   }
 }
 
+void VOIPPhone::setEchoCompensation(bool enable, long threshold_level, uint8_t damping) {
+  echocompensation = enable;
+  ec_threshold_level = threshold_level;
+  echodamping_value = damping;
+}
