@@ -17,7 +17,7 @@
 #define NUMPIXELS 3
 Adafruit_NeoPixel pixels(NUMPIXELS, WS2812PIN, NEO_GRB + NEO_KHZ400);
 
-//#define mDNSUpdate(c)  do {} while(0)
+#define mDNSUpdate(c)  do {} while(0)
 using WebServerClass = WebServer;
 using HTTPUpdateServerClass = HTTPUpdateServer;
 
@@ -60,6 +60,9 @@ struct Config {
   uint8_t ring_r;
   uint8_t ring_g;
   uint8_t ring_b;
+  bool echocompensation;
+  uint8_t echodamping;
+  uint echothreshold;
 } config;
 
 struct Metadata {
@@ -115,6 +118,9 @@ void APICallback(WebServer *server) {
     output += "Now:"+String(min)+"</br>";
     output += "Sunrise:"+String(sr_min)+"</br>";
     output += "Sunset:"+String(ss_min)+"</br>";
+    output += "LED0:"+String(pixels.getPixelColor(0));
+    output += "LED1:"+String(pixels.getPixelColor(1));
+    output += "LED2:"+String(pixels.getPixelColor(2));
     server->send(200, mimeHTML, output);
   });
 
@@ -189,6 +195,9 @@ void setup() {
   configManager.addParameter("ring_r", &config.ring_r);
   configManager.addParameter("ring_g", &config.ring_g);
   configManager.addParameter("ring_b", &config.ring_b);
+  configManager.addParameter("echocompensation", &config.echocompensation);
+  configManager.addParameter("echodamping", &config.echodamping);
+  configManager.addParameter("echothreshold", &config.echothreshold);
   // Meta Settings
   configManager.addParameter("version", &meta.version, get);
   // Init Callbacks
@@ -212,12 +221,21 @@ void loop() {
         if(int result = doorphone.begin(config.sip_ip,config.sip_user,config.sip_pass)==VOIPPHONE_OK) {
           doorphone.setAmpGain(config.amp_gain);
           doorphone.setMicGain(config.mic_gain);
+          doorphone.setEchoCompensation(config.echocompensation,config.echothreshold,config.echodamping);
           Serial.println("[OK]");
         } else {
           Serial.print("[ERROR CODE:"+(String)result+"]");
         }
         doorphonerunning = true;
+        pixels.setPixelColor(0, pixels.Color(255, 255, 255));
+        pixels.setPixelColor(1, pixels.Color(255, 255, 255));
+        pixels.setPixelColor(2, pixels.Color(255, 255, 255));
+        pixels.show();
         pixels.clear();
+        pixels.show();
+        pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
         pixels.show();
       }
       button1.Update();
