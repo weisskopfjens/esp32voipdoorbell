@@ -121,6 +121,7 @@ void Sip::Ack(const char *p)
   AddSipLine("Content-Length: 0");
   AddSipLine("");
   SendUdp();
+  iMaxTime = 300; // 5min if call is ack
 }
 
 void Sip::Ok(const char *p)
