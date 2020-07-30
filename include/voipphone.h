@@ -39,6 +39,7 @@ class VOIPPhone {
     void setMicGain(uint8_t gain);
     void setAmpGain(uint8_t gain);
     bool isBusy(void);
+    void setEchoCompensation(bool enable, long threshold_level, uint8_t damping);
   private:
     int initi2samp(void);
     int initi2smic(void);
@@ -59,6 +60,11 @@ class VOIPPhone {
     static Sip *sip;
     static uint8_t amp_gain;
     static uint8_t mic_gain;
+    static uint8_t echodamping;
+    static bool echocompensation;
+    long level;
+    long ec_threshold_level;
+    uint8_t echodamping_value;
     Ticker tx_streamticker;
     bool tx_streamisrunning = false;
     bool rx_streamisrunning = false;
