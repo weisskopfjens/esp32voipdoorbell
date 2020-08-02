@@ -24,7 +24,7 @@ int VOIPPhone::begin(const char *sipip,const char *sipuser,const char *sippasswd
   }
   DebugPrint("Init SIP...");
   sip = new Sip(caSipOut, sizeof(caSipOut));
-  sip->Init(sipip, sipport , myip, sipport, sipuser, sippasswd, 15); // 15 seconds
+  sip->Init(sipip, sipport , myip, sipport, sipuser, sippasswd); // 15 seconds
   DebugPrintln("[OK]");
   // i2s devices
   int result = initi2smic();
@@ -45,8 +45,10 @@ int VOIPPhone::begin(const char *sipip,const char *sipuser,const char *sippasswd
 void VOIPPhone::dial(const char *number,const char *id) {
   DebugPrintln("Dialing");
   i2s_start(I2S_PORT1);
+  DebugPrintln("I2SPORT1 start");
   rx_streamisrunning = true;
-  sip->Dial(number, id);
+  sip->Dial(number, id, 15);
+  DebugPrintln("sip->Dial executed");
 }
 
 //

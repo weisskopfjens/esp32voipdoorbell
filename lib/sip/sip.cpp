@@ -57,11 +57,12 @@ Sip::Sip(char *pBuf, size_t lBuf)
   audioport[0] = '\0';
 }
 
-bool Sip::Dial(const char *DialNr, const char *DialDesc)
+bool Sip::Dial(const char *DialNr, const char *DialDesc, int MaxDialSec)
 {
   if (iRingTime)
     return false;
 
+  Serial.println("DEBUG| Dial "+(String)(DialNr));
   audioport[0] = '\0';
   iDialRetries = 0;
   pDialNr = DialNr;
@@ -69,6 +70,8 @@ bool Sip::Dial(const char *DialNr, const char *DialDesc)
   Invite();
   iDialRetries++;
   iRingTime = Millis();
+  iMaxTime = MaxDialSec * 1000;
+  Serial.println("DEBUG| Set timeout to "+(String)(MaxDialSec));
   return true;
 }
 
@@ -121,7 +124,6 @@ void Sip::Ack(const char *p)
   AddSipLine("Content-Length: 0");
   AddSipLine("");
   SendUdp();
-  iMaxTime = 300; // 5min if call is ack
 }
 
 void Sip::Ok(const char *p)
@@ -138,7 +140,7 @@ void Sip::Ok(const char *p)
   SendUdp();
 }
 
-void Sip::Init(const char *SipIp, int SipPort, const char *MyIp, int MyPort, const char *SipUser, const char *SipPassWd, int MaxDialSec)
+void Sip::Init(const char *SipIp, int SipPort, const char *MyIp, int MyPort, const char *SipUser, const char *SipPassWd)
 {
   udp.begin(SipPort);
   caRead[0] = 0;
@@ -151,7 +153,7 @@ void Sip::Init(const char *SipIp, int SipPort, const char *MyIp, int MyPort, con
   iMyPort = MyPort;
   iAuthCnt = 0;
   iRingTime = 0;
-  iMaxTime = MaxDialSec * 1000;
+  
   
 }
 
@@ -376,18 +378,29 @@ void Sip::HandleUdpPacket()
 
   if (strstr(p, "SIP/2.0 401 Unauthorized") == p)
   {
+    Serial.println("DEBUG| SIP/2.0 401 Unauthorized received");
     Ack(p);
     // call Invite with response data (p) to build auth md5 hashes
     Invite(p);
   }
   else if (strstr(p, "BYE") == p)
   {
+    Serial.println("DEBUG| SIP/BYE received");
     audioport[0] = '\0';
     Ok(p);
     iRingTime = 0;
   }
   else if (strstr(p, "SIP/2.0 200") == p)    // OK
-  { 
+  {   
+    Serial.println("DEBUG| SIP/2.0 200 OK received");
+    iMaxTime = 60 * 1000; // Timeout to 60 sec
+    Serial.println("DEBUG| Set timeout to 60 sec");
+    ParseReturnParams(p);
+    Ack(p);
+  }
+  else if (   strstr(p, "SIP/2.0 183 ") == p // Session Progress
+              || strstr(p, "SIP/2.0 180 ") == p ) // Ringing
+  {
     //
     // Determine the audio port of the SIP server (Fritzbox RTP port)
     //
@@ -396,8 +409,16 @@ void Sip::HandleUdpPacket()
     //
     // Todo: sscanf maybe a better method to do this
     //
+    Serial.println("DEBUG| SIP/2.0 183 or 180 received");
     char *sdpportptr;
     sdpportptr = strstr(p, " RTP/AVP 8");
+    if(sdpportptr == NULL) {
+      Serial.println("DEBUG| RTP/AVP 8 not found");
+      audioport[0] = '\0';
+      return;
+    } else {
+       Serial.println("DEBUG| RTP/AVP 8 found");
+    }
     sdpportptr--;
     int i=0;
     while(*sdpportptr!=' ' || i>8) {
@@ -413,16 +434,8 @@ void Sip::HandleUdpPacket()
         i++;
       }
       audioport[i]='\0';
-      //Serial.println("Audio Port:"+(String)audioport);
+      Serial.println("DEBUG| Audio Port:"+(String)(audioport));
     }
-    
-
-    ParseReturnParams(p);
-    Ack(p);
-  }
-  else if (   strstr(p, "SIP/2.0 183 ") == p // Session Progress
-              || strstr(p, "SIP/2.0 180 ") == p ) // Ringing
-  {
     ParseReturnParams(p);
   }
   else if (strstr(p, "SIP/2.0 100 ") == p)   // Trying

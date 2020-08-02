@@ -49,9 +49,9 @@ class Sip
 
   public:
     Sip(char *pBuf, size_t lBuf);
-    void        Init(const char *SipIp, int SipPort, const char *MyIp, int MyPort, const char *SipUser, const char *SipPassWd, int MaxDialSec = 10);
+    void        Init(const char *SipIp, int SipPort, const char *MyIp, int MyPort, const char *SipUser, const char *SipPassWd);
     void        HandleUdpPacket();
-    bool        Dial(const char *DialNr, const char *DialDesc = "");
+    bool        Dial(const char *DialNr, const char *DialDesc = "", int MaxDialSec = 10);
     bool        IsBusy() {
       return iRingTime != 0;
     }
