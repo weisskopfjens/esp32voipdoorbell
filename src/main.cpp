@@ -227,7 +227,7 @@ void loop() {
           Serial.print("[ERROR CODE:"+(String)result+"]");
         }
         doorphonerunning = true;
-        pixels.setPixelColor(0, pixels.Color(255, 255, 255));
+        /*pixels.setPixelColor(0, pixels.Color(255, 255, 255));
         pixels.setPixelColor(1, pixels.Color(255, 255, 255));
         pixels.setPixelColor(2, pixels.Color(255, 255, 255));
         pixels.show();
@@ -235,7 +235,8 @@ void loop() {
         pixels.show();
         pixels.setPixelColor(0, pixels.Color(0, 0, 0));
         pixels.setPixelColor(1, pixels.Color(0, 0, 0));
-        pixels.setPixelColor(2, pixels.Color(0, 0, 0));
+        pixels.setPixelColor(2, pixels.Color(0, 0, 0));*/
+        pixels.clear();
         pixels.show();
       }
       button1.Update();
@@ -290,6 +291,9 @@ void loop() {
     if (islighton) {
       islighton = false;
       pixels.clear();
+      pixels.setPixelColor(0, pixels.Color(0, 0, 0));
+      pixels.setPixelColor(1, pixels.Color(0, 0, 0));
+      pixels.setPixelColor(2, pixels.Color(0, 0, 0));
       pixels.show();
     }
   }
